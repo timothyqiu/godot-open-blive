@@ -1,0 +1,29 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=4
+
+[application]
+
+config/name="godot-open-blive"
+run/main_scene="res://demo/Demo.tscn"
+config/icon="res://icon.png"
+
+[display]
+
+window/size/width=400
+window/size/height=400
+window/dpi/allow_hidpi=true
+
+[editor_plugins]
+
+enabled=PoolStringArray( "res://addons/com.timothyqiu.open-blive/plugin.cfg" )
+
+[physics]
+
+common/enable_pause_aware_picking=true

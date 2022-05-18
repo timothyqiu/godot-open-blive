@@ -1,0 +1,116 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://addons/com.timothyqiu.open-blive/OpenBlive.gd" type="Script" id=1]
+[ext_resource path="res://demo/Demo.gd" type="Script" id=2]
+[ext_resource path="res://demo/VonwaonBitmap-12pxLite.ttf" type="DynamicFontData" id=3]
+
+[sub_resource type="DynamicFont" id=1]
+size = 12
+font_data = ExtResource( 3 )
+
+[sub_resource type="Theme" id=2]
+default_font = SubResource( 1 )
+
+[node name="Demo" type="VBoxContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+theme = SubResource( 2 )
+custom_constants/separation = 8
+script = ExtResource( 2 )
+
+[node name="OpenBlive" type="Node" parent="."]
+script = ExtResource( 1 )
+
+[node name="Output" type="RichTextLabel" parent="."]
+margin_right = 384.0
+margin_bottom = 358.0
+size_flags_vertical = 3
+custom_constants/line_separation = 4
+bbcode_enabled = true
+scroll_following = true
+
+[node name="Dashboard" type="HBoxContainer" parent="."]
+margin_top = 366.0
+margin_right = 384.0
+margin_bottom = 384.0
+alignment = 1
+
+[node name="Clear" type="Button" parent="Dashboard"]
+margin_right = 36.0
+margin_bottom = 18.0
+text = "清屏"
+
+[node name="Danmaku" type="HBoxContainer" parent="Dashboard"]
+margin_left = 40.0
+margin_right = 210.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Label" type="Label" parent="Dashboard/Danmaku"]
+margin_left = 33.0
+margin_top = 3.0
+margin_right = 57.0
+margin_bottom = 15.0
+custom_colors/font_color = Color( 0.666667, 0.666667, 0.666667, 1 )
+text = "弹幕"
+
+[node name="Connect" type="Button" parent="Dashboard/Danmaku"]
+margin_left = 61.0
+margin_right = 97.0
+margin_bottom = 18.0
+text = "连接"
+
+[node name="Disconnect" type="Button" parent="Dashboard/Danmaku"]
+margin_left = 101.0
+margin_right = 137.0
+margin_bottom = 18.0
+disabled = true
+text = "断开"
+
+[node name="Game" type="HBoxContainer" parent="Dashboard"]
+margin_left = 214.0
+margin_right = 384.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Label" type="Label" parent="Dashboard/Game"]
+margin_left = 33.0
+margin_top = 3.0
+margin_right = 57.0
+margin_bottom = 15.0
+custom_colors/font_color = Color( 0.666667, 0.666667, 0.666667, 1 )
+text = "游戏"
+
+[node name="Start" type="Button" parent="Dashboard/Game"]
+margin_left = 61.0
+margin_right = 97.0
+margin_bottom = 18.0
+text = "开始"
+
+[node name="End" type="Button" parent="Dashboard/Game"]
+margin_left = 101.0
+margin_right = 137.0
+margin_bottom = 18.0
+disabled = true
+text = "结束"
+
+[connection signal="danmaku_received" from="OpenBlive" to="." method="_on_OpenBlive_danmaku_received"]
+[connection signal="danmaku_server_connected" from="OpenBlive" to="." method="_on_OpenBlive_danmaku_server_connected"]
+[connection signal="danmaku_server_connection_failed" from="OpenBlive" to="." method="_on_OpenBlive_danmaku_server_connection_failed"]
+[connection signal="danmaku_server_disconnected" from="OpenBlive" to="." method="_on_OpenBlive_danmaku_server_disconnected"]
+[connection signal="game_start_failed" from="OpenBlive" to="." method="_on_OpenBlive_game_start_failed"]
+[connection signal="game_started" from="OpenBlive" to="." method="_on_OpenBlive_game_started"]
+[connection signal="game_stopped" from="OpenBlive" to="." method="_on_OpenBlive_game_stopped"]
+[connection signal="gift_received" from="OpenBlive" to="." method="_on_OpenBlive_gift_received"]
+[connection signal="meta_clicked" from="Output" to="." method="_on_Output_meta_clicked"]
+[connection signal="pressed" from="Dashboard/Clear" to="Output" method="clear"]
+[connection signal="pressed" from="Dashboard/Danmaku/Connect" to="." method="_on_Connect_pressed"]
+[connection signal="pressed" from="Dashboard/Danmaku/Disconnect" to="." method="_on_Disconnect_pressed"]
+[connection signal="pressed" from="Dashboard/Game/Start" to="." method="_on_Start_pressed"]
+[connection signal="pressed" from="Dashboard/Game/End" to="." method="_on_End_pressed"]
