@@ -138,4 +138,9 @@ func _on_danmaku_server_connection_closed(clean_close: bool):
 
 
 func _on_game_heartbeat():
-	api_client.app_heartbeat(game_id)
+	# TODO: Heartbeat interval after call complete.
+	var result : ApiClient.ApiCallResult = yield(api_client.app_heartbeat(game_id), "completed")
+	if not result.is_ok() and result.type == ApiClient.ApiCallResult.Type.API_ERROR and result.code == 7003:
+		game_heartbeat.stop()
+		game_id = ""
+		emit_signal("game_stopped")
