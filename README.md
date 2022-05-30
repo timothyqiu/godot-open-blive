@@ -20,7 +20,7 @@
 | ---- | ---- |
 | `Access Key Id`     | 注册开放平台开发者获得。 |
 | `Access Key Secret` | 注册开放平台开发者获得。 |
-| `App Id`            | 项目 ID，使用互动玩法必填。 |
+| `App Id`            | 项目 ID。在[创作者服务中心](https://open-live.bilibili.com/open-manage)中创建项目后，在项目详情中获取。 |
 | `Room Id Override`  | 强制使用特定的直播间号。留空自动从命令行参数获取。<br />上架后从直播姬中运行时就会使用这种方式传递直播间号。 |
 
 该节点有四个方法：
@@ -31,6 +31,8 @@
 | `stop_danmaku()`  | 关闭弹幕。 |
 | `start_game()`    | 开启互动玩法。<br />开启的成功与否请以对应的信号为准。 |
 | `stop_game()`     | 关闭互动玩法。 |
+
+推荐在 `start_game()` 成功开启互动玩法后再调用 `start_danmaku()`。
 
 该节点的信号如下：
 
