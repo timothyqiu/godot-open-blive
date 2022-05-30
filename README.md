@@ -3,6 +3,7 @@
 <img src="icon.png?raw=true"  align="right" />
 
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![AssetLib](https://img.shields.io/badge/AssetLib-OpenBlive-478cbf)](https://godotengine.org/asset-library/asset/1341)
 
 哔哩哔哩[直播开放平台](https://open-live.bilibili.com/document/)的 Godot 插件。
 
