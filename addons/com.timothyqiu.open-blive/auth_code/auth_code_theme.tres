@@ -1,0 +1,40 @@
+[gd_resource type="Theme" load_steps=10 format=2]
+
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/line_edit_no_placeholder_stylebox.tres" type="StyleBox" id=1]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/background.svg" type="Texture" id=2]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/checkbox_unchecked.svg" type="Texture" id=3]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/checkbox_checked.svg" type="Texture" id=4]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/checkbox_normal.svg" type="Texture" id=6]
+
+[sub_resource type="StyleBoxEmpty" id=6]
+
+[sub_resource type="StyleBoxTexture" id=5]
+texture = ExtResource( 6 )
+region_rect = Rect2( 0, 0, 85, 15 )
+
+[sub_resource type="StyleBoxEmpty" id=3]
+
+[sub_resource type="StyleBoxTexture" id=2]
+texture = ExtResource( 2 )
+region_rect = Rect2( 0, 0, 482, 332 )
+margin_left = 53.6521
+margin_right = 52.4858
+margin_top = 88.6521
+margin_bottom = 58.3175
+expand_margin_left = 40.0
+expand_margin_right = 40.0
+expand_margin_top = 40.0
+expand_margin_bottom = 40.0
+
+[resource]
+CheckBox/icons/checked = ExtResource( 4 )
+CheckBox/icons/unchecked = ExtResource( 3 )
+CheckBox/styles/focus = SubResource( 6 )
+CheckBox/styles/hover = SubResource( 5 )
+CheckBox/styles/normal = SubResource( 5 )
+CheckBox/styles/pressed = SubResource( 5 )
+LineEdit/colors/cursor_color = Color( 0.0941176, 0.0980392, 0.109804, 1 )
+LineEdit/colors/font_color = Color( 0.0941176, 0.0980392, 0.109804, 1 )
+LineEdit/styles/focus = SubResource( 3 )
+LineEdit/styles/normal = ExtResource( 1 )
+PopupDialog/styles/panel = SubResource( 2 )

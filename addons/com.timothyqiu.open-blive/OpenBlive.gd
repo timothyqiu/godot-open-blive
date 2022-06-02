@@ -16,23 +16,21 @@ signal game_stopped
 
 const ApiClient := preload("api_client.gd")
 const DanmakuClient := preload("danmaku_client.gd")
+const AuthCodeRequester := preload("auth_code/AuthCodeRequester.tscn")
 
 export var access_key_id: String
 export var access_key_secret: String
-export var app_id := 0 # 大于 0 时启用互动玩法
-export var room_id_override := 0 # 大于 0 时强制使用特定直播间（默认从命令行参数获取）
+export var app_id := 0
 
 var api_client: ApiClient
 var danmaku_client: DanmakuClient
 
 var game_id: String
 var game_heartbeat: Timer
+var game_websocket_info: Dictionary
 
 
 func _ready():
-	var room_id = room_id_override if room_id_override > 0 else _parse_room_id()
-	api_client = ApiClient.new(room_id, access_key_id, access_key_secret)
-	
 	danmaku_client = DanmakuClient.new()
 	danmaku_client.connect("auth_success", self, "_on_danmaku_server_connected")
 	danmaku_client.connect("connection_error", self, "emit_signal", ["danmaku_server_connection_failed"])
@@ -53,25 +51,32 @@ func _notification(what):
 			danmaku_client.poll_and_heartbeat()
 
 
+func prompt_for_auth_code() -> String:
+	yield(get_tree(), "idle_frame")
+	
+	var prompt = AuthCodeRequester.instance()
+	add_child(prompt)
+	prompt.show_dialog()
+	var code: String = yield(prompt, "submitted")
+	prompt.queue_free()
+	return code
+
+
 func start_danmaku():
-	if access_key_id.empty() or access_key_secret.empty():
-		printerr("未配置 access_key_id 及 access_key_secret，无法开启弹幕")
+	if not ("auth_body" in game_websocket_info and "wss_link" in game_websocket_info):
+		printerr("请使用 start_game() 启动游戏，启动游戏后会自动开启弹幕。新版 API 中 start_danmaku() 仅用于关闭后的重连。")
 		emit_signal("danmaku_server_connection_failed")
 		return
-	
-	var result: ApiClient.ApiCallResult = yield(api_client.get_websocket_info(), "completed")
-	if result.is_ok():
-		set_physics_process_internal(true)
-		danmaku_client.connect_with_data(result.data)
-	else:
-		emit_signal("danmaku_server_connection_failed")
+
+	set_physics_process_internal(true)
+	danmaku_client.connect_with_data(game_websocket_info)
 
 
 func stop_danmaku():
 	danmaku_client.disconnect_from_host()
 
 
-func start_game():
+func start_game(code := ""):
 	if access_key_id.empty() or access_key_secret.empty():
 		printerr("未配置 access_key_id 及 access_key_secret，无法开启互动玩法")
 		emit_signal("game_start_failed", -1)
@@ -81,14 +86,29 @@ func start_game():
 		emit_signal("game_start_failed", -1)
 		return
 	
+	if not api_client:
+		api_client = ApiClient.new(access_key_id, access_key_secret)
+	
+	if not code:
+		code = yield(prompt_for_auth_code(), "completed")
+	
+	if not code:
+		emit_signal("game_start_failed", -1)
+		return
+	
 	game_id = ""
 	
 	while true:
-		var result: ApiClient.ApiCallResult = yield(api_client.app_start(app_id), "completed")
+		var result: ApiClient.ApiCallResult = yield(
+			api_client.request("/v2/app/start", {code=code, app_id=app_id}),
+			"completed"
+		)
 		if result.is_ok():
-			game_id = result.data.game_id
+			game_id = result.data.game_info.game_id
 			game_heartbeat.start()
 			emit_signal("game_started")
+			game_websocket_info = result.data.websocket_info
+			start_danmaku()
 			return
 		
 		match result.code:
@@ -96,7 +116,7 @@ func start_game():
 				yield(get_tree().create_timer(5), "timeout")
 			
 			_:
-				push_error("failed to start game: (%d) %s" % [result.code, result.message])
+				printerr("start game error: (%d) %s" % [result.code, result.message])
 				if result.type == ApiClient.ApiCallResult.Type.API_ERROR:
 					emit_signal("game_start_failed", result.code)
 				else:
@@ -104,24 +124,24 @@ func start_game():
 				return
 
 
-func stop_game():
+func stop_game(keep_danmaku := false):
 	if not game_id:
 		return
 	
 	game_heartbeat.stop()
-	api_client.app_end(app_id, game_id)
+	
+	var result: ApiClient.ApiCallResult = yield(
+		api_client.request("/v2/app/end", {game_id=game_id, app_id=app_id}),
+		"completed"
+	)
+	if not result.is_ok():
+		printerr("stop game error: (%d) %s" % [result.code, result.message])
+	
 	game_id = ""
 	emit_signal("game_stopped")
-
-
-func _parse_room_id() -> int:
-	for argument in OS.get_cmdline_args():
-		if argument.find("=") > -1:
-			var key_value = argument.split("=")
-			if key_value[0].trim_prefix("--") == "room_id":
-				return int(key_value[1])
-	printerr("未使用 `--room_id` 参数指定直播间。上架后在直播姬中启动会自动设置该参数；调试时可在项目设置 `editor/main_run_args` 中指定。正在默认使用 @timothyqiu 的直播间。")
-	return 592299
+	
+	if not keep_danmaku:
+		stop_danmaku()
 
 
 func _pass_danmaku_event(data: Dictionary, target: String):
@@ -139,7 +159,10 @@ func _on_danmaku_server_connection_closed(clean_close: bool):
 
 func _on_game_heartbeat():
 	# TODO: Heartbeat interval after call complete.
-	var result : ApiClient.ApiCallResult = yield(api_client.app_heartbeat(game_id), "completed")
+	var result : ApiClient.ApiCallResult = yield(
+		api_client.request("/v2/app/heartbeat", {game_id=game_id}),
+		"completed"
+	)
 	if not result.is_ok() and result.type == ApiClient.ApiCallResult.Type.API_ERROR and result.code == 7003:
 		game_heartbeat.stop()
 		game_id = ""

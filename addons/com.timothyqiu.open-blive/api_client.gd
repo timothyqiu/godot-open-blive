@@ -1,7 +1,6 @@
 var _endpoint: String
 var _access_key_id: String
 var _access_key_secret: String
-var _room_id: int
 
 var _hmac := HMACContext.new()
 var _http := HTTPClient.new()
@@ -55,60 +54,26 @@ class ApiCallResult:
 		return type == Type.SUCCESS
 
 
-func _init(room_id: int, key_id: String, key_secret: String) -> void:
+func _init(key_id: String, key_secret: String) -> void:
 	_access_key_id = key_id
 	_access_key_secret = key_secret
 	_endpoint = "https://live-open.biliapi.com"
-	_room_id = room_id
-
-
-func get_websocket_info():
-	var result: ApiCallResult = yield(
-		_request("/v1/common/websocketInfo", {
-			room_id=_room_id,
-		}),
-		"completed"
-	)
-	if not result.is_ok():
-		push_warning("Failed to get WebSocket info: (%d) %s" % [result.code, result.message])
-	return result
-
-
-func app_start(app_id: int):
-	return yield(
-		_request("/v1/app/start", {room_id=_room_id, app_id=app_id}),
-		"completed"
-	)
-
-
-func app_end(app_id: int, game_id: String):
-	return yield(
-		_request("/v1/app/end", {app_id=app_id, game_id=game_id}),
-		"completed"
-	)
-
-
-func app_heartbeat(game_id: String):
-	return yield(
-		_request("/v1/app/heartbeat", {game_id=game_id}),
-		"completed"
-	)
 
 
 func _generate_signature(chunk: String) -> String:
 	var err := _hmac.start(HashingContext.HASH_SHA256, _access_key_secret.to_utf8())
 	if err:
-		push_error("OpenBlive: failed to start HMAC context.")
+		printerr("OpenBlive: failed to start HMAC context.")
 		return String()
 	err = _hmac.update(chunk.to_utf8())
 	if err:
-		push_error("OpenBlive: failed to update HMAC context.")
+		printerr("OpenBlive: failed to update HMAC context.")
 		_hmac.finish()
 		return String()
 	return _hmac.finish().hex_encode()
 
 
-func _request(api: String, params: Dictionary) -> ApiCallResult:
+func request(api: String, params: Dictionary) -> ApiCallResult:
 	var body := to_json(params)
 	var timestamp := OS.get_unix_time()
 	var headers := [
@@ -190,6 +155,5 @@ func _request(api: String, params: Dictionary) -> ApiCallResult:
 	var api_code = response.get("code")
 	if api_code != 0:
 		return ApiCallResult.make_api_error(api_code, response.get("message", json_text))
-	
 	return ApiCallResult.make_success(response.get("data", {}))
 

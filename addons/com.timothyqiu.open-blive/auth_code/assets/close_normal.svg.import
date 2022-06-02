@@ -1,0 +1,35 @@
+[remap]
+
+importer="texture"
+type="StreamTexture"
+path="res://.import/close_normal.svg-059110cd4a56716f3b79e9361b3272f7.stex"
+metadata={
+"vram_texture": false
+}
+
+[deps]
+
+source_file="res://addons/com.timothyqiu.open-blive/auth_code/assets/close_normal.svg"
+dest_files=[ "res://.import/close_normal.svg-059110cd4a56716f3b79e9361b3272f7.stex" ]
+
+[params]
+
+compress/mode=0
+compress/lossy_quality=0.7
+compress/hdr_mode=0
+compress/bptc_ldr=0
+compress/normal_map=0
+flags/repeat=0
+flags/filter=true
+flags/mipmaps=false
+flags/anisotropic=false
+flags/srgb=2
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/HDR_as_SRGB=false
+process/invert_color=false
+process/normal_map_invert_y=false
+stream=false
+size_limit=0
+detect_3d=true
+svg/scale=1.0

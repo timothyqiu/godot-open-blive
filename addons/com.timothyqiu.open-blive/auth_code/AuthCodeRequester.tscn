@@ -1,0 +1,103 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/AuthCodeRequester.gd" type="Script" id=1]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/auth_code_theme.tres" type="Theme" id=2]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/button_hover.svg" type="Texture" id=3]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/button_normal.svg" type="Texture" id=4]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/button_pressed.svg" type="Texture" id=5]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/button_disabled.svg" type="Texture" id=6]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/note.svg" type="Texture" id=7]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/decoration.png" type="Texture" id=8]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/close_pressed.svg" type="Texture" id=9]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/close_hover.svg" type="Texture" id=10]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/close_normal.svg" type="Texture" id=11]
+[ext_resource path="res://addons/com.timothyqiu.open-blive/auth_code/assets/link.svg" type="Texture" id=12]
+
+[node name="AuthCodeRequester" type="CanvasLayer"]
+script = ExtResource( 1 )
+
+[node name="Dialog" type="PopupDialog" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+rect_min_size = Vector2( 400, 250 )
+focus_mode = 1
+theme = ExtResource( 2 )
+popup_exclusive = true
+
+[node name="LineEdit" type="LineEdit" parent="Dialog"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_top = 75.0
+grow_horizontal = 2
+rect_min_size = Vector2( 310, 33 )
+secret = true
+clear_button_enabled = true
+caret_blink = true
+
+[node name="Submit" type="TextureButton" parent="Dialog"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_bottom = -43.0
+grow_horizontal = 2
+grow_vertical = 0
+rect_min_size = Vector2( 119, 32 )
+texture_normal = ExtResource( 4 )
+texture_pressed = ExtResource( 5 )
+texture_hover = ExtResource( 3 )
+texture_disabled = ExtResource( 6 )
+
+[node name="Remember" type="CheckBox" parent="Dialog"]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+rect_min_size = Vector2( 85, 15 )
+
+[node name="Note" type="TextureRect" parent="Dialog"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -153.0
+margin_top = 115.0
+texture = ExtResource( 7 )
+
+[node name="Decoration" type="TextureRect" parent="Dialog"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+grow_vertical = 0
+texture = ExtResource( 8 )
+
+[node name="Close" type="TextureButton" parent="Dialog"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_top = 15.0
+margin_right = -15.0
+grow_horizontal = 0
+texture_normal = ExtResource( 11 )
+texture_pressed = ExtResource( 9 )
+texture_hover = ExtResource( 10 )
+
+[node name="Link" type="TextureButton" parent="Dialog"]
+anchor_left = 1.0
+anchor_right = 1.0
+margin_top = 112.0
+margin_right = -45.0
+grow_horizontal = 0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource( 12 )
+
+[connection signal="focus_entered" from="Dialog/LineEdit" to="." method="_on_LineEdit_focus_entered"]
+[connection signal="focus_exited" from="Dialog/LineEdit" to="." method="_on_LineEdit_focus_exited"]
+[connection signal="text_changed" from="Dialog/LineEdit" to="." method="_on_LineEdit_text_changed"]
+[connection signal="text_entered" from="Dialog/LineEdit" to="." method="_on_LineEdit_text_entered"]
+[connection signal="pressed" from="Dialog/Submit" to="." method="_on_Submit_pressed"]
+[connection signal="pressed" from="Dialog/Close" to="." method="_on_Close_pressed"]
+[connection signal="pressed" from="Dialog/Link" to="." method="_on_Link_pressed"]

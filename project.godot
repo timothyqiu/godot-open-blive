@@ -16,8 +16,8 @@ config/icon="res://icon.png"
 
 [display]
 
-window/size/width=400
-window/size/height=400
+window/size/width=512
+window/size/height=512
 window/dpi/allow_hidpi=true
 
 [editor_plugins]
