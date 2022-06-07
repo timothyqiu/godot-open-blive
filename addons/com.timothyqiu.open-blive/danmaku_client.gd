@@ -105,7 +105,6 @@ class Proto:
 var _auth_body: String
 var _authorized := false
 var _last_heartbeat := 0
-var _urls: PoolStringArray
 
 
 func _init():
@@ -113,17 +112,15 @@ func _init():
 	connect("data_received", self, "_on_ws_data_received")
 
 
-func connect_with_data(data: Dictionary):
-	_auth_body = data.auth_body
-	_urls = data.wss_link
+func connect_with_auth(url: String, auth_body: String):
+	_auth_body = auth_body
 	
-	if _urls.empty() or _auth_body.empty():
+	if url.empty() or _auth_body.empty():
 		emit_signal("connection_error")
 		return
 	
 	_authorized = false
 	
-	var url := _urls[0] # 反正我连其它主机会被立即断开
 	var err := connect_to_url(url)
 	if err:
 		printerr("failed to connect to URL: %s" % url)

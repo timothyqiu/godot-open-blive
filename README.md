@@ -7,10 +7,6 @@
 
 哔哩哔哩[直播开放平台](https://open-live.bilibili.com/document/)的 Godot 插件。
 
-⚠️ 当前版本使用“主播身份码”鉴权，内置了请求输入身份码的界面。身份码需要在开播后，在“我的直播间”页面获得（身份码如果不手动重置是不会变化的）。
-
-如果需要使用早先的使用 `--room-id=XXX` 指定直播间的版本，请使用 [1.0](https://github.com/timothyqiu/godot-open-blive/tree/1.0) 版本，官方将于 2022 年 6 月底停止对参数指定直播间的支持，统一使用身份码鉴权。
-
 ## 用法
 
 启用插件后即可在场景中使用 OpenBlive 节点。
@@ -27,12 +23,12 @@
 
 | 名称 | 说明 |
 | ---- | ---- |
-| `start_game(code)`        | 开启互动玩法，成功后会同时开启弹幕。<br />`code` 参数为身份码，默认为空，会弹窗请求用户输入。<br />开启的成功与否请以对应的信号为准。 |
-| `stop_game(keep_danmaku)` | 关闭互动玩法。<br />`keep_danmaku` 参数为是否保留弹幕连接，默认会断开。 |
-| `start_danmaku()` | 开启弹幕。仅用于手动关闭后的重开。 |
-| `stop_danmaku()`  | 关闭弹幕。 |
-
-`start_game()` 成功后会自动开启弹幕，`stop_game()` 默认会关闭弹幕。
+| `start_game(code, with_danmaku)` | 开启互动玩法。<br />`code` 参数为身份码，默认为空，会自动弹窗请求用户输入。<br />`with_danmaku` 参数为是否同时开启弹幕，默认开启。<br />开启的成功与否请以对应的信号为准。 |
+| `stop_game(keep_danmaku)`        | 关闭互动玩法。<br />`keep_danmaku` 参数为是否保留弹幕连接，默认会断开。 |
+| `start_danmaku(url, auth_body)` | 开启弹幕。需要先成功开启互动玩法。参数无需关心，请保持缺省状态。 |
+| `stop_danmaku()`                | 关闭弹幕。 |
+| `get_anchor_info()` | 获取当前主播信息。<br />信息字段说明见[官方文档](https://open-live.bilibili.com/document/doc&tool/api/interactPlay.html#%E5%BA%94%E7%94%A8%E5%BC%80%E5%90%AF)。如果尚未开启互动玩法，则返回空字典。|
+| `prompt_for_auth_code()` | 手动向玩家弹窗获取身份码。<br />请使用 `var code = yield(prompt_for_auth_code(), "completed")` 等待用户输入的身份码字符串。如果用户直接关闭弹窗，返回的是空字符串。 |
 
 ### OpenBlive 节点信号列表
 

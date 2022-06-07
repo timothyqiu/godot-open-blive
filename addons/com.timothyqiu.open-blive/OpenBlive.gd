@@ -25,9 +25,9 @@ export var app_id := 0
 var api_client: ApiClient
 var danmaku_client: DanmakuClient
 
-var game_id: String
-var game_heartbeat: Timer
-var game_websocket_info: Dictionary
+var _game_id: String
+var _game_heartbeat: Timer
+var _game_anchor_info: Dictionary
 
 
 func _ready():
@@ -39,10 +39,10 @@ func _ready():
 	for signal_name in ["danmaku_received", "gift_received", "superchat_added", "superchat_removed", "guard_hired"]:
 		danmaku_client.connect(signal_name, self, "_pass_danmaku_event", [signal_name])
 	
-	game_heartbeat = Timer.new()
-	game_heartbeat.wait_time = 30
-	game_heartbeat.connect("timeout", self, "_on_game_heartbeat")
-	add_child(game_heartbeat)
+	_game_heartbeat = Timer.new()
+	_game_heartbeat.wait_time = 30
+	_game_heartbeat.connect("timeout", self, "_on_game_heartbeat")
+	add_child(_game_heartbeat)
 
 
 func _notification(what):
@@ -62,21 +62,43 @@ func prompt_for_auth_code() -> String:
 	return code
 
 
-func start_danmaku():
-	if not ("auth_body" in game_websocket_info and "wss_link" in game_websocket_info):
-		printerr("请使用 start_game() 启动游戏，启动游戏后会自动开启弹幕。新版 API 中 start_danmaku() 仅用于关闭后的重连。")
-		emit_signal("danmaku_server_connection_failed")
-		return
+func get_anchor_info() -> Dictionary:
+	return _game_anchor_info
+
+
+func start_danmaku(url := "", auth_body := ""):
+	yield(get_tree(), "idle_frame")
+	
+	if url.empty() or auth_body.empty():
+		var room_id: int = _game_anchor_info.get("room_id", 0)
+		if room_id == 0:
+			printerr("请使用 start_game() 启动游戏，启动游戏后会自动开启弹幕。新版 API 中 start_danmaku() 仅用于关闭后的重连。")
+			emit_signal("danmaku_server_connection_failed")
+			return
+		var result: ApiClient.ApiCallResult = yield(
+			api_client.request("/v1/common/websocketInfo", {room_id=room_id}),
+			"completed"
+		)
+		if not result.is_ok():
+			printerr("Failed to get websocket info: (%d) %s" % [result.code, result.message])
+			emit_signal("danmaku_server_connection_failed")
+			return
+		
+		url = "wss://%s:%d/sub" % [result.data.host[-1], result.data.wss_port[0]] # 反正我连其它主机会被立即断开
+		auth_body = result.data.auth_body
 
 	set_physics_process_internal(true)
-	danmaku_client.connect_with_data(game_websocket_info)
+	danmaku_client.connect_with_auth(url, auth_body)
 
 
 func stop_danmaku():
+	yield(get_tree(), "idle_frame")
 	danmaku_client.disconnect_from_host()
 
 
-func start_game(code := ""):
+func start_game(code := "", with_danmaku := true):
+	yield(get_tree(), "idle_frame")
+	
 	if access_key_id.empty() or access_key_secret.empty():
 		printerr("未配置 access_key_id 及 access_key_secret，无法开启互动玩法")
 		emit_signal("game_start_failed", -1)
@@ -96,7 +118,8 @@ func start_game(code := ""):
 		emit_signal("game_start_failed", -1)
 		return
 	
-	game_id = ""
+	_game_id = ""
+	_game_anchor_info = {}
 	
 	while true:
 		var result: ApiClient.ApiCallResult = yield(
@@ -104,11 +127,12 @@ func start_game(code := ""):
 			"completed"
 		)
 		if result.is_ok():
-			game_id = result.data.game_info.game_id
-			game_heartbeat.start()
+			_game_id = result.data.game_info.game_id
+			_game_anchor_info = result.data.anchor_info
+			_game_heartbeat.start()
 			emit_signal("game_started")
-			game_websocket_info = result.data.websocket_info
-			start_danmaku()
+			if with_danmaku:
+				start_danmaku(result.data.websocket_info.wss_link[0], result.data.websocket_info.auth_body)
 			return
 		
 		match result.code:
@@ -125,19 +149,22 @@ func start_game(code := ""):
 
 
 func stop_game(keep_danmaku := false):
-	if not game_id:
+	yield(get_tree(), "idle_frame")
+	
+	if not _game_id:
 		return
 	
-	game_heartbeat.stop()
+	_game_heartbeat.stop()
 	
 	var result: ApiClient.ApiCallResult = yield(
-		api_client.request("/v2/app/end", {game_id=game_id, app_id=app_id}),
+		api_client.request("/v2/app/end", {game_id=_game_id, app_id=app_id}),
 		"completed"
 	)
 	if not result.is_ok():
 		printerr("stop game error: (%d) %s" % [result.code, result.message])
 	
-	game_id = ""
+	_game_id = ""
+	_game_anchor_info = {}
 	emit_signal("game_stopped")
 	
 	if not keep_danmaku:
@@ -160,10 +187,11 @@ func _on_danmaku_server_connection_closed(clean_close: bool):
 func _on_game_heartbeat():
 	# TODO: Heartbeat interval after call complete.
 	var result : ApiClient.ApiCallResult = yield(
-		api_client.request("/v2/app/heartbeat", {game_id=game_id}),
+		api_client.request("/v2/app/heartbeat", {game_id=_game_id}),
 		"completed"
 	)
 	if not result.is_ok() and result.type == ApiClient.ApiCallResult.Type.API_ERROR and result.code == 7003:
-		game_heartbeat.stop()
-		game_id = ""
+		_game_heartbeat.stop()
+		_game_id = ""
+		_game_anchor_info = {}
 		emit_signal("game_stopped")

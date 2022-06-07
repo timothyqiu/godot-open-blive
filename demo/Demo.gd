@@ -1,5 +1,7 @@
 extends Control
 
+var quitting := false
+
 onready var blive = $OpenBlive
 onready var output = $Output
 
@@ -7,6 +9,17 @@ onready var game_start: Button = $Dashboard/Game/Start
 onready var game_end: Button = $Dashboard/Game/End
 onready var danmaku_connect: Button = $Dashboard/Danmaku/Connect
 onready var danmaku_disconnect: Button = $Dashboard/Danmaku/Disconnect
+
+
+func _ready():
+	get_tree().set_auto_accept_quit(false) # 需要在退出前停止游戏
+
+
+func _notification(what):
+	if what == NOTIFICATION_WM_QUIT_REQUEST and not quitting:
+		quitting = true
+		yield(blive.stop_game(), "completed")
+		get_tree().quit()
 
 
 func _set_danmaku_connected(v: bool):
@@ -57,7 +70,8 @@ func _on_OpenBlive_gift_received(data: Dictionary):
 
 
 func _on_OpenBlive_game_started():
-	output.append_bbcode("[color=#22bb22]游戏已开启[/color]\n")
+	output.append_bbcode("[color=#22bb22]游戏已开启[/color] ")
+	output.add_text("当前主播：%s\n" % blive.get_anchor_info().uname)
 	_set_game_started(true)
 
 
