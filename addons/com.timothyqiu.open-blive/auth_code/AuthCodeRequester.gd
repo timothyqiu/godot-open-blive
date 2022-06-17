@@ -22,12 +22,25 @@ func show_dialog():
 	dialog.popup_centered()
 
 
+func _get_auth_code_from_cmdline() -> String:
+	for argument in OS.get_cmdline_args():
+		if argument.find("=") > -1:
+			var key_value = argument.split("=")
+			if key_value[0] == "code":
+				return key_value[1]
+	return ""
+
+
 func _load_auth_code() -> String:
+	var code := _get_auth_code_from_cmdline()
+	if code:
+		return code
+	
 	var file := File.new()
 	var err := file.open(AUTH_CODE_SAVE_FILE, File.READ)
 	if err:
 		return ""
-	var code := file.get_var() as String
+	code = file.get_var() as String
 	return code
 
 
