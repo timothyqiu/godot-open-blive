@@ -112,6 +112,9 @@ func start_game(code := "", with_danmaku := true):
 		api_client = ApiClient.new(access_key_id, access_key_secret)
 	
 	if not code:
+		code = get_auth_code_from_cmdline()
+	
+	if not code:
 		code = yield(prompt_for_auth_code(), "completed")
 	
 	if not code:
@@ -169,6 +172,15 @@ func stop_game(keep_danmaku := false):
 	
 	if not keep_danmaku:
 		stop_danmaku()
+
+
+func get_auth_code_from_cmdline() -> String:
+	for argument in OS.get_cmdline_args():
+		if argument.find("=") > -1:
+			var key_value = argument.split("=")
+			if key_value[0] == "code":
+				return key_value[1]
+	return ""
 
 
 func _pass_danmaku_event(data: Dictionary, target: String):
