@@ -21,14 +21,14 @@
 
 ### OpenBlive 节点方法列表
 
-| 名称 | 说明 |
-| ---- | ---- |
-| `start_game(code, with_danmaku)` | 开启互动玩法。<br />`code` 参数为身份码，默认为空，会自动弹窗请求用户输入。<br />`with_danmaku` 参数为是否同时开启弹幕，默认开启。<br />开启的成功与否请以对应的信号为准。 |
-| `stop_game(keep_danmaku)`        | 关闭互动玩法。<br />`keep_danmaku` 参数为是否保留弹幕连接，默认会断开。 |
-| `start_danmaku(url, auth_body)` | 开启弹幕。需要先成功开启互动玩法。参数无需关心，请保持缺省状态。 |
-| `stop_danmaku()`                | 关闭弹幕。 |
-| `get_anchor_info()` | 获取当前主播信息。<br />信息字段说明见[官方文档](https://open-live.bilibili.com/document/doc&tool/api/interactPlay.html#%E5%BA%94%E7%94%A8%E5%BC%80%E5%90%AF)。如果尚未开启互动玩法，则返回空字典。|
-| `prompt_for_auth_code()` | 手动向玩家弹窗获取身份码。<br />请使用 `var code = yield(prompt_for_auth_code(), "completed")` 等待用户输入的身份码字符串。如果用户直接关闭弹窗，返回的是空字符串。 |
+| 名称 | 参数 | 说明 |
+| ---- | ---- | ---- |
+| `start_game` | `code`, `with_danmaku` | 开启互动玩法。<br />`code` 参数为身份码，默认为空，会自动弹窗请求用户输入。<br />`with_danmaku` 参数为是否同时开启弹幕，默认开启。<br />开启的成功与否请以对应的信号为准。 |
+| `stop_game`  | `keep_danmaku`         | 关闭互动玩法。<br />`keep_danmaku` 参数为是否保留弹幕连接，默认会断开。 |
+| `start_danmaku` | `url`, `auth_body`  | 开启弹幕。需要先成功开启互动玩法，用于弹幕断开后的重连。<br />参数无需关心，请保持缺省状态。 |
+| `stop_danmaku`         | | 关闭弹幕。 |
+| `get_anchor_info`      | | 获取当前主播信息。<br />信息字段说明见[官方文档](https://open-live.bilibili.com/document/doc&tool/api/interactPlay.html#%E5%BA%94%E7%94%A8%E5%BC%80%E5%90%AF)。如果尚未开启互动玩法，则返回空字典。|
+| `prompt_for_auth_code` | | 手动向玩家弹窗获取身份码。<br />请使用 `var code = yield(prompt_for_auth_code(), "completed")` 等待用户输入的身份码字符串。如果用户直接关闭弹窗，返回的是空字符串。 |
 
 ### OpenBlive 节点信号列表
 
@@ -46,5 +46,6 @@
 | `game_start_failed(code)` | 互动玩法开启失败。<br />`code` 为整数错误码。为 `-1` 时表示非服务器返回的错误，其余情况见[官方文档](https://open-live.bilibili.com/document/doc&tool/auth.html#%E5%85%AC%E5%85%B1%E9%94%99%E8%AF%AF%E7%A0%81)。错误码为 `7001` 的情况已在内部处理自动重试，不会发生。 |
 | `game_stopped` | 互动玩法已停止。 |
 
-示例用法见 Demo。
+## Demo
 
+示例用法见 Demo。

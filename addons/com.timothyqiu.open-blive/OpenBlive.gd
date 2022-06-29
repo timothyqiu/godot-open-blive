@@ -25,6 +25,9 @@ export var app_id := 0
 var api_client: ApiClient
 var danmaku_client: DanmakuClient
 
+var _last_wss_links := PoolStringArray()
+var _last_auth_body: String
+
 var _game_id: String
 var _game_heartbeat: Timer
 var _game_anchor_info: Dictionary
@@ -70,23 +73,13 @@ func start_danmaku(url := "", auth_body := ""):
 	yield(get_tree(), "idle_frame")
 	
 	if url.empty() or auth_body.empty():
-		var room_id: int = _game_anchor_info.get("room_id", 0)
-		if room_id == 0:
-			printerr("请使用 start_game() 启动游戏，启动游戏后会自动开启弹幕。新版 API 中 start_danmaku() 仅用于关闭后的重连。")
+		if _last_wss_links.empty() or _last_auth_body.empty():
+			printerr("请使用 start_game() 启动游戏，启动游戏后会自动开启弹幕。start_danmaku() 仅用于弹幕服务器断开后的重连。")
 			emit_signal("danmaku_server_connection_failed")
 			return
-		var result: ApiClient.ApiCallResult = yield(
-			api_client.request("/v1/common/websocketInfo", {room_id=room_id}),
-			"completed"
-		)
-		if not result.is_ok():
-			printerr("Failed to get websocket info: (%d) %s" % [result.code, result.message])
-			emit_signal("danmaku_server_connection_failed")
-			return
-		
-		url = "wss://%s:%d/sub" % [result.data.host[-1], result.data.wss_port[0]] # 反正我连其它主机会被立即断开
-		auth_body = result.data.auth_body
-
+		url = _last_wss_links[0]
+		auth_body = _last_auth_body
+	
 	set_physics_process_internal(true)
 	danmaku_client.connect_with_auth(url, auth_body)
 
@@ -133,9 +126,14 @@ func start_game(code := "", with_danmaku := true):
 			_game_id = result.data.game_info.game_id
 			_game_anchor_info = result.data.anchor_info
 			_game_heartbeat.start()
+			
+			_last_wss_links = result.data.websocket_info.wss_link
+			_last_auth_body = result.data.websocket_info.auth_body
+			
 			emit_signal("game_started")
+			
 			if with_danmaku:
-				start_danmaku(result.data.websocket_info.wss_link[0], result.data.websocket_info.auth_body)
+				start_danmaku(_last_wss_links[0], _last_auth_body)
 			return
 		
 		match result.code:
@@ -166,9 +164,7 @@ func stop_game(keep_danmaku := false):
 	if not result.is_ok():
 		printerr("stop game error: (%d) %s" % [result.code, result.message])
 	
-	_game_id = ""
-	_game_anchor_info = {}
-	emit_signal("game_stopped")
+	_on_game_stopped()
 	
 	if not keep_danmaku:
 		stop_danmaku()
@@ -181,6 +177,13 @@ func get_auth_code_from_cmdline() -> String:
 			if key_value[0] == "code":
 				return key_value[1]
 	return ""
+
+
+func _on_game_stopped():
+	_game_heartbeat.stop()
+	_game_id = ""
+	_game_anchor_info = {}
+	emit_signal("game_stopped")
 
 
 func _pass_danmaku_event(data: Dictionary, target: String):
@@ -203,7 +206,4 @@ func _on_game_heartbeat():
 		"completed"
 	)
 	if not result.is_ok() and result.type == ApiClient.ApiCallResult.Type.API_ERROR and result.code == 7003:
-		_game_heartbeat.stop()
-		_game_id = ""
-		_game_anchor_info = {}
-		emit_signal("game_stopped")
+		_on_game_stopped()
