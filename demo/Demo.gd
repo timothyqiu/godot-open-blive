@@ -32,17 +32,27 @@ func _set_game_started(v: bool):
 	game_end.disabled = not v
 
 
+func _append_datetime():
+	var dt := OS.get_datetime()
+	output.push_color(Color(1, 1, 1, 0.5))
+	output.add_text("[%02d-%02d %02d:%02d:%02d]" % [dt.month, dt.day, dt.hour, dt.minute, dt.second])
+	output.pop()
+
+
 func _on_OpenBlive_danmaku_server_connected():
+	_append_datetime()
 	output.append_bbcode("[color=#22bb22]弹幕已连接[/color]\n")
 	_set_danmaku_connected(true)
 
 
 func _on_OpenBlive_danmaku_server_connection_failed():
+	_append_datetime()
 	output.append_bbcode("[color=#bb2222]弹幕连接失败[/color]\n")
 	_set_danmaku_connected(false)
 
 
 func _on_OpenBlive_danmaku_server_disconnected():
+	_append_datetime()
 	output.append_bbcode("[color=#222222]弹幕已断开[/color]\n")
 	_set_danmaku_connected(false)
 
@@ -51,6 +61,7 @@ func _on_OpenBlive_danmaku_received(data: Dictionary):
 	# 详细的字段信息见官方文档
 	# https://open-live.bilibili.com/document/liveRoomData.html#%E8%8E%B7%E5%8F%96%E5%BC%B9%E5%B9%95%E4%BF%A1%E6%81%AF
 	
+	_append_datetime()
 	output.push_meta(data.uface) # 头像 URL：可以在 Godot 中下载并显示，但需要自行识别图像格式，见 Image
 	output.add_text(data.uname) # 昵称。如需对用户进行唯一区分建议用 danmaku.uid
 	output.pop()
@@ -62,6 +73,7 @@ func _on_OpenBlive_gift_received(data: Dictionary):
 	# 详细的字段信息见官方文档
 	# https://open-live.bilibili.com/document/liveRoomData.html#%E8%8E%B7%E5%8F%96%E7%A4%BC%E7%89%A9%E4%BF%A1%E6%81%AF
 	
+	_append_datetime()
 	output.push_meta(data.uface) # 头像 URL：可以在 Godot 中下载并显示，但需要自行识别图像格式，见 Image
 	output.add_text(data.uname) # 昵称。如需对用户进行唯一区分建议用 danmaku.uid
 	output.pop()
@@ -70,17 +82,20 @@ func _on_OpenBlive_gift_received(data: Dictionary):
 
 
 func _on_OpenBlive_game_started():
+	_append_datetime()
 	output.append_bbcode("[color=#22bb22]游戏已开启[/color] ")
 	output.add_text("当前主播：%s\n" % blive.get_anchor_info().uname)
 	_set_game_started(true)
 
 
 func _on_OpenBlive_game_start_failed(code: int):
+	_append_datetime()
 	output.append_bbcode("[color=#bb2222]开启游戏失败: %d[/color]\n" % code)
 	_set_game_started(false)
 
 
 func _on_OpenBlive_game_stopped():
+	_append_datetime()
 	output.append_bbcode("[color=#222222]游戏已结束[/color]\n")
 	_set_game_started(false)
 
