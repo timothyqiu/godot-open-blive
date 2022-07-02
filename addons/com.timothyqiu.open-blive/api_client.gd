@@ -2,6 +2,7 @@ var _endpoint: String
 var _access_key_id: String
 var _access_key_secret: String
 
+var _rng := RandomNumberGenerator.new()
 var _hmac := HMACContext.new()
 var _http := HTTPClient.new()
 
@@ -58,6 +59,7 @@ func _init(key_id: String, key_secret: String) -> void:
 	_access_key_id = key_id
 	_access_key_secret = key_secret
 	_endpoint = "https://live-open.biliapi.com"
+	_rng.randomize()
 
 
 func _generate_signature(chunk: String) -> String:
@@ -73,6 +75,14 @@ func _generate_signature(chunk: String) -> String:
 	return _hmac.finish().hex_encode()
 
 
+func _generate_nonce(length := 8) -> String:
+	var chars := PoolStringArray()
+	chars.resize(length)
+	for i in length:
+		chars[i] = str(_rng.randi_range(0, 9))
+	return chars.join("")
+
+
 func request(api: String, params: Dictionary) -> ApiCallResult:
 	var body := to_json(params)
 	var timestamp := OS.get_unix_time()
@@ -80,7 +90,7 @@ func request(api: String, params: Dictionary) -> ApiCallResult:
 		"x-bili-accesskeyid:%s" % _access_key_id,
 		"x-bili-content-md5:%s" % body.md5_text(),
 		"x-bili-signature-method:HMAC-SHA256",
-		"x-bili-signature-nonce:%d" % (timestamp + randi() % 100000),
+		"x-bili-signature-nonce:%s" % _generate_nonce(),
 		"x-bili-signature-version:1.0",
 		"x-bili-timestamp:%d" % timestamp,
 	]

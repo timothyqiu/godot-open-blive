@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - 修正互动玩法心跳间隔
+- 调整 API Nonce 的生成算法，尽可能避免重复请求错误
 
 ## [2.1.1] - 2022-07-01
 ### Added
