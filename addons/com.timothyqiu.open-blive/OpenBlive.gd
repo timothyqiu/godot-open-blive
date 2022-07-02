@@ -43,7 +43,7 @@ func _ready():
 		danmaku_client.connect(signal_name, self, "_pass_danmaku_event", [signal_name])
 	
 	_game_heartbeat = Timer.new()
-	_game_heartbeat.wait_time = 30
+	_game_heartbeat.wait_time = 20
 	_game_heartbeat.connect("timeout", self, "_on_game_heartbeat")
 	add_child(_game_heartbeat)
 

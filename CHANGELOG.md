@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- 修正互动玩法心跳间隔
+
+## [2.1.1] - 2022-07-01
 ### Added
 - 支持从命令行获取身份码
 ### Fixed
@@ -25,3 +29,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.0.0]: https://github.com/timothyqiu/godot-open-blive/releases/tag/1.0
 [2.0.0]: https://github.com/timothyqiu/godot-open-blive/releases/tag/2.0
 [2.1.0]: https://github.com/timothyqiu/godot-open-blive/releases/tag/2.1
+[2.1.1]: https://github.com/timothyqiu/godot-open-blive/releases/tag/2.1.1
