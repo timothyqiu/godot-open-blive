@@ -27,6 +27,7 @@ var danmaku_client: DanmakuClient
 
 var _last_wss_links := PoolStringArray()
 var _last_auth_body: String
+var _last_code: String
 
 var _game_id: String
 var _game_heartbeat: Timer
@@ -105,15 +106,16 @@ func start_game(code := "", with_danmaku := true):
 		api_client = ApiClient.new(access_key_id, access_key_secret)
 	
 	if not code:
+		code = _last_code
+	if not code:
 		code = get_auth_code_from_cmdline()
-	
 	if not code:
 		code = yield(prompt_for_auth_code(), "completed")
-	
 	if not code:
 		emit_signal("game_start_failed", -1)
 		return
 	
+	_last_code = code
 	_game_id = ""
 	_game_anchor_info = {}
 	
