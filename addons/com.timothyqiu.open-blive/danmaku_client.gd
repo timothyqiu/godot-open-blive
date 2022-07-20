@@ -124,7 +124,7 @@ func connect_with_auth(url: String, auth_body: String):
 	var err := connect_to_url(url)
 	if err:
 		printerr("failed to connect to URL: %s" % url)
-		emit_signal("connection_error")
+		# 不必手动发出 connection_error
 
 
 func poll_and_heartbeat():
