@@ -3,6 +3,7 @@ extends Node
 signal danmaku_server_connected
 signal danmaku_server_connection_failed
 signal danmaku_server_disconnected
+signal danmaku_server_heartbeat_failed
 
 signal danmaku_received(data)
 signal gift_received(data)
@@ -39,6 +40,7 @@ func _ready():
 	danmaku_client.connect("auth_success", self, "_on_danmaku_server_connected")
 	danmaku_client.connect("connection_error", self, "emit_signal", ["danmaku_server_connection_failed"])
 	danmaku_client.connect("connection_closed", self, "_on_danmaku_server_connection_closed")
+	danmaku_client.connect("heartbeat_failed", self, "_on_danmaku_heartbeat_failed")
 	
 	for signal_name in ["danmaku_received", "gift_received", "superchat_added", "superchat_removed", "guard_hired"]:
 		danmaku_client.connect(signal_name, self, "_pass_danmaku_event", [signal_name])
@@ -199,6 +201,11 @@ func _on_danmaku_server_connected():
 func _on_danmaku_server_connection_closed(clean_close: bool):
 	set_physics_process_internal(false)
 	emit_signal("danmaku_server_disconnected")
+
+
+func _on_danmaku_heartbeat_failed():
+	set_physics_process_internal(false)
+	emit_signal("danmaku_server_heartbeat_failed")
 
 
 func _on_game_heartbeat():

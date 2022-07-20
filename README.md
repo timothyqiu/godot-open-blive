@@ -39,6 +39,7 @@
 | `danmaku_server_connected` | | 弹幕服务器已连接。 |
 | `danmaku_server_connection_failed` | | 弹幕服务器连接失败。 |
 | `danmaku_server_disconnected` | | 弹幕服务器已断开。 |
+| `danmaku_server_heartbeat_failed` | | 弹幕服务器心跳错误，已断开与服务器的连接。 |
 | `danmaku_received` | `data` | 收到弹幕。<br />`data` 为字典，字段说明见[官方文档](https://open-live.bilibili.com/document/liveRoomData.html#%E8%8E%B7%E5%8F%96%E5%BC%B9%E5%B9%95%E4%BF%A1%E6%81%AF)。 |
 | `gift_received` | `data` | 收到礼物。<br />`data` 为字典，字段说明见[官方文档](https://open-live.bilibili.com/document/liveRoomData.html#%E8%8E%B7%E5%8F%96%E7%A4%BC%E7%89%A9%E4%BF%A1%E6%81%AF)。|
 | `superchat_added` | `data` | 添加付费留言。<br />`data` 为字典，字段说明见[官方文档](https://open-live.bilibili.com/document/liveRoomData.html#%E8%8E%B7%E5%8F%96%E4%BB%98%E8%B4%B9%E7%95%99%E8%A8%80)。|

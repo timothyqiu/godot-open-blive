@@ -57,6 +57,12 @@ func _on_OpenBlive_danmaku_server_disconnected():
 	_set_danmaku_connected(false)
 
 
+func _on_OpenBlive_danmaku_server_heartbeat_failed():
+	_append_datetime()
+	output.append_bbcode("[color=#222222]弹幕心跳错误，已断开[/color]\n")
+	_set_danmaku_connected(false)
+
+
 func _on_OpenBlive_danmaku_received(data: Dictionary):
 	# 详细的字段信息见官方文档
 	# https://open-live.bilibili.com/document/liveRoomData.html#%E8%8E%B7%E5%8F%96%E5%BC%B9%E5%B9%95%E4%BF%A1%E6%81%AF

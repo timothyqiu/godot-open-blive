@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- 增加了弹幕服务器心跳错误信号
 - 同一次运行中，如果已经输入过身份码，就记住不再弹框
 - 修复弹幕连接失败错误可能连续触发两次的问题
 

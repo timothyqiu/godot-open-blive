@@ -104,6 +104,7 @@ text = "断开"
 [connection signal="danmaku_server_connected" from="OpenBlive" to="." method="_on_OpenBlive_danmaku_server_connected"]
 [connection signal="danmaku_server_connection_failed" from="OpenBlive" to="." method="_on_OpenBlive_danmaku_server_connection_failed"]
 [connection signal="danmaku_server_disconnected" from="OpenBlive" to="." method="_on_OpenBlive_danmaku_server_disconnected"]
+[connection signal="danmaku_server_heartbeat_failed" from="OpenBlive" to="." method="_on_OpenBlive_danmaku_server_heartbeat_failed"]
 [connection signal="game_start_failed" from="OpenBlive" to="." method="_on_OpenBlive_game_start_failed"]
 [connection signal="game_started" from="OpenBlive" to="." method="_on_OpenBlive_game_started"]
 [connection signal="game_stopped" from="OpenBlive" to="." method="_on_OpenBlive_game_stopped"]

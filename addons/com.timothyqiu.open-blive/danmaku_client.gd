@@ -1,6 +1,8 @@
 extends WebSocketClient
 
 signal auth_success
+signal heartbeat_failed
+
 signal danmaku_received(data)
 signal gift_received(data)
 signal superchat_added(data)
@@ -104,7 +106,8 @@ class Proto:
 
 var _auth_body: String
 var _authorized := false
-var _last_heartbeat := 0
+var _last_heartbeat_sent_at := -1
+var _last_heartbeat_received_at := -1
 
 
 func _init():
@@ -138,9 +141,13 @@ func poll_and_heartbeat():
 		return
 	
 	var timestamp := OS.get_unix_time()
-	if _last_heartbeat + HEARTBEAT_INTERVAL < timestamp:
+	if _last_heartbeat_sent_at + HEARTBEAT_INTERVAL < timestamp:
 		Proto.make_heartbeat().pack(peer)
-		_last_heartbeat = timestamp
+		_last_heartbeat_sent_at = timestamp
+	
+	if timestamp - _last_heartbeat_received_at > HEARTBEAT_INTERVAL * 3:
+		disconnect_from_host()
+		emit_signal("heartbeat_failed")
 
 
 func _on_ws_connection_established(_protocol: String) -> void:
@@ -157,12 +164,13 @@ func _on_ws_data_received() -> void:
 #				buffer.big_endian = true
 #				buffer.data_array = proto.body
 #				print("Popularity: ", buffer.get_32())
-				pass
+				_last_heartbeat_received_at = OS.get_unix_time()
 				
 			Proto.Operation.OP_AUTH_REPLY:
 				# 如果提供错误的授权数据也并不会返回失败，但无法正常获取数据
 				_authorized = true
-				_last_heartbeat = OS.get_unix_time()
+				_last_heartbeat_sent_at = OS.get_unix_time()
+				_last_heartbeat_received_at = OS.get_unix_time()
 				emit_signal("auth_success")
 			
 			Proto.Operation.OP_SEND_SMS_REPLY:
