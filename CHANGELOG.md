@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.3.0] - 2022-07-24
 - 增加了弹幕服务器心跳错误信号
 - 同一次运行中，如果已经输入过身份码，就记住不再弹框
 - 修复弹幕连接失败错误可能连续触发两次的问题
@@ -37,3 +39,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [2.1.0]: https://github.com/timothyqiu/godot-open-blive/releases/tag/2.1
 [2.1.1]: https://github.com/timothyqiu/godot-open-blive/releases/tag/2.1.1
 [2.2.0]: https://github.com/timothyqiu/godot-open-blive/releases/tag/2.2
+[2.3.0]: https://github.com/timothyqiu/godot-open-blive/releases/tag/2.3
